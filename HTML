@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>🐄 Calculadora Profissional de Ração para Gado</title>
+
+<link rel="stylesheet" href="style.css">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+</head>
+<body>
+
+<div class="container">
+
+<h1>🐄 Calculadora Profissional de Ração para Gado</h1>
+
+<div class="cards">
+
+<div class="mini-card">
+<h3>Consumo Diário</h3>
+<span id="kpiDia">0</span>
+</div>
+
+<div class="mini-card">
+<h3>Consumo Mensal</h3>
+<span id="kpiMes">0</span>
+</div>
+
+<div class="mini-card">
+<h3>Custo Mensal</h3>
+<span id="kpiCusto">R$ 0</span>
+</div>
+
+</div>
+
+<div class="card">
+
+<label>Categoria Animal</label>
+<select id="categoria" onchange="atualizarConsumo()">
+<option value="2">Bezerro (2%)</option>
+<option value="2.5" selected>Novilha (2,5%)</option>
+<option value="3">Confinamento (3%)</option>
+<option value="3.5">Vaca Leiteira (3,5%)</option>
+</select>
+
+<label>Número de Cabeças</label>
+<input type="number" id="cabecas" min="1">
+
+<label>Peso Médio por Animal (kg)</label>
+<input type="number" id="peso" min="1">
+
+<label>Consumo (% do Peso Vivo)</label>
+<input type="number" id="consumo" value="2.5" step="0.1">
+
+<label>Preço da Ração (R$/kg)</label>
+<input type="number" id="preco" value="2.00" step="0.01">
+
+<button class="btn-calcular" onclick="calcular()">
+📊 Calcular
+</button>
+
+<button class="btn-pdf" onclick="gerarPDF()">
+📄 Exportar PDF
+</button>
+
+<button class="btn-limpar" onclick="limparCampos()">
+🗑 Limpar
+</button>
+
+</div>
+
+<div id="resultado" class="resultado"></div>
+
+<div class="grafico-container">
+<canvas id="grafico"></canvas>
+</div>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
