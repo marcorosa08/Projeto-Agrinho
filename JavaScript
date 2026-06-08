@@ -1,0 +1,272 @@
+let grafico;
+
+function atualizarConsumo(){
+
+    document.getElementById("consumo").value =
+    document.getElementById("categoria").value;
+}
+
+function salvarDados(){
+
+    localStorage.setItem(
+        "cabecas",
+        document.getElementById("cabecas").value
+    );
+
+    localStorage.setItem(
+        "peso",
+        document.getElementById("peso").value
+    );
+
+    localStorage.setItem(
+        "consumo",
+        document.getElementById("consumo").value
+    );
+
+    localStorage.setItem(
+        "preco",
+        document.getElementById("preco").value
+    );
+}
+
+function carregarDados(){
+
+    document.getElementById("cabecas").value =
+    localStorage.getItem("cabecas") || "";
+
+    document.getElementById("peso").value =
+    localStorage.getItem("peso") || "";
+
+    document.getElementById("consumo").value =
+    localStorage.getItem("consumo") || "2.5";
+
+    document.getElementById("preco").value =
+    localStorage.getItem("preco") || "2.00";
+}
+
+function calcular(){
+
+    const cabecas =
+    Number(document.getElementById("cabecas").value);
+
+    const peso =
+    Number(document.getElementById("peso").value);
+
+    const consumo =
+    Number(document.getElementById("consumo").value);
+
+    const preco =
+    Number(document.getElementById("preco").value);
+
+    if(cabecas <= 0 || peso <= 0 || consumo <= 0){
+
+        alert("Preencha todos os campos corretamente.");
+        return;
+    }
+
+    const consumoAnimal =
+    peso * (consumo / 100);
+
+    const consumoTotalDia =
+    consumoAnimal * cabecas;
+
+    const consumo7Dias =
+    consumoTotalDia * 7;
+
+    const consumo15Dias =
+    consumoTotalDia * 15;
+
+    const consumo30Dias =
+    consumoTotalDia * 30;
+
+    const consumo60Dias =
+    consumoTotalDia * 60;
+
+    const consumo90Dias =
+    consumoTotalDia * 90;
+
+    const consumo120Dias =
+    consumoTotalDia * 120;
+
+    const estoqueSeguro =
+    consumo30Dias * 1.10;
+
+    const toneladas =
+    consumo30Dias / 1000;
+
+    const custoDia =
+    consumoTotalDia * preco;
+
+    const custoMes =
+    consumo30Dias * preco;
+
+    let status = "🟢 Baixo";
+
+    if(custoMes > 5000){
+        status = "🟡 Médio";
+    }
+
+    if(custoMes > 10000){
+        status = "🔴 Alto";
+    }
+
+    document.getElementById("kpiDia")
+    .innerText = consumoTotalDia.toFixed(0) + " kg";
+
+    document.getElementById("kpiMes")
+    .innerText = consumo30Dias.toFixed(0) + " kg";
+
+    document.getElementById("kpiCusto")
+    .innerText = "R$ " + custoMes.toFixed(2);
+
+    document.getElementById("resultado")
+    .style.display = "block";
+
+    document.getElementById("resultado").innerHTML = `
+
+    <h2>📋 Resultado</h2>
+
+    <p><strong>Consumo por animal:</strong> ${consumoAnimal.toFixed(2)} kg/dia</p>
+
+    <p><strong>Consumo total do lote:</strong> ${consumoTotalDia.toFixed(2)} kg/dia</p>
+
+    <hr>
+
+    <p><strong>7 dias:</strong> ${consumo7Dias.toFixed(2)} kg</p>
+
+    <p><strong>15 dias:</strong> ${consumo15Dias.toFixed(2)} kg</p>
+
+    <p><strong>30 dias:</strong> ${consumo30Dias.toFixed(2)} kg</p>
+
+    <hr>
+
+    <p><strong>60 dias:</strong> ${consumo60Dias.toFixed(2)} kg</p>
+
+    <p><strong>90 dias:</strong> ${consumo90Dias.toFixed(2)} kg</p>
+
+    <p><strong>120 dias:</strong> ${consumo120Dias.toFixed(2)} kg</p>
+
+    <hr>
+
+    <p><strong>Toneladas para 30 dias:</strong> ${toneladas.toFixed(2)} t</p>
+
+    <p><strong>Estoque recomendado (+10%):</strong> ${estoqueSeguro.toFixed(2)} kg</p>
+
+    <hr>
+
+    <p><strong>Sacos de 25kg:</strong> ${Math.ceil(consumo30Dias / 25)}</p>
+
+    <p><strong>Sacos de 40kg:</strong> ${Math.ceil(consumo30Dias / 40)}</p>
+
+    <hr>
+
+    <p><strong>Custo Diário:</strong> R$ ${custoDia.toFixed(2)}</p>
+
+    <p><strong>Custo Mensal:</strong> R$ ${custoMes.toFixed(2)}</p>
+
+    <p><strong>Nível de Gasto:</strong> ${status}</p>
+    `;
+
+    desenharGrafico(
+        consumoTotalDia,
+        consumo30Dias,
+        custoMes
+    );
+
+    salvarDados();
+}
+
+function desenharGrafico(dia, mes, custo){
+
+    const ctx =
+    document.getElementById("grafico");
+
+    if(grafico){
+        grafico.destroy();
+    }
+
+    grafico = new Chart(ctx,{
+        type:"bar",
+        data:{
+            labels:[
+                "Consumo Diário",
+                "Consumo Mensal",
+                "Custo Mensal"
+            ],
+            datasets:[{
+                label:"Indicadores",
+                data:[
+                    dia,
+                    mes,
+                    custo
+                ],
+                backgroundColor:[
+                    "#27ae60",
+                    "#3498db",
+                    "#f39c12"
+                ]
+            }]
+        },
+        options:{
+            responsive:true,
+            maintainAspectRatio:false
+        }
+    });
+}
+
+function gerarPDF(){
+
+    const resultado =
+    document.getElementById("resultado");
+
+    if(resultado.innerHTML === ""){
+
+        alert("Faça um cálculo primeiro.");
+        return;
+    }
+
+    html2pdf()
+    .from(resultado)
+    .save("relatorio-racao.pdf");
+}
+
+function limparCampos(){
+
+    document.getElementById("cabecas").value = "";
+    document.getElementById("peso").value = "";
+    document.getElementById("consumo").value = "2.5";
+    document.getElementById("preco").value = "2.00";
+
+    document.getElementById("resultado")
+    .innerHTML = "";
+
+    document.getElementById("resultado")
+    .style.display = "none";
+
+    localStorage.clear();
+
+    if(grafico){
+        grafico.destroy();
+    }
+
+    document.getElementById("kpiDia").innerText = "0";
+    document.getElementById("kpiMes").innerText = "0";
+    document.getElementById("kpiCusto").innerText = "R$ 0";
+}
+
+window.onload = () => {
+
+    carregarDados();
+
+    document
+    .querySelectorAll("input")
+    .forEach(input => {
+
+        input.addEventListener(
+            "input",
+            salvarDados
+        );
+
+    });
+
+};
